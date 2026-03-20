@@ -1,39 +1,55 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-import { useEffect } from 'react';
 import SDK from "@/sdk";
+import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
+  const [level, setLevel] = useState<number>()
+  const [UUID, setUUID] = useState<string>()
 
   useEffect(() => {
     SDK.device.scan().then(res => {
-      console.log("scan结果：", res);
+      // console.log("scan结果：", res);
     })
     SDK.system.getInfo().then(res => {
-      console.log("getInfo结果：", res);
+      // console.log("getInfo结果：", res);
+    })
+
+    SDK.device.getBatteryLevel().then(res => {
+      setLevel(res.data)
+      console.log(res);
+      
+    })
+
+    SDK.device.getUUID().then(res => {
+      setUUID(res.data)
+      console.log(res);
     })
   }, [])
 
   return (
-    <View  style={styles.titleContainer}>
+    <View style={styles.titleContainer}>
       <Text>
         example-sdk
-      </Text>
+      </Text><View>
+        <Text>
+          {level}
+        </Text>
+      </View>
+      <View>
+        <Text>
+          {UUID}
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // gap: 8,
   },
   stepContainer: {
     gap: 8,
