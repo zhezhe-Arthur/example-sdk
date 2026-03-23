@@ -17,29 +17,31 @@ export default function HomeScreen() {
 
     SDK.device.getBatteryLevel().then(res => {
       setLevel(res.data)
-      console.log(res);
+      console.log("电量:", res.data);
       
     })
 
     SDK.device.getUUID().then(res => {
       setUUID(res.data)
-      console.log(res);
+      console.log("UUID:",res.data);
     })
   }, [])
 
   return (
-    <View style={styles.titleContainer}>
-      <Text>
-        example-sdk
-      </Text><View>
-        <Text>
-          {level}
-        </Text>
-      </View>
-      <View>
-        <Text>
-          {UUID}
-        </Text>
+    <View style={{flex: 1}}>
+      <View style={styles.titleContainer}>
+        <View>
+          <Text>
+            {"电量："}
+            {level}
+          </Text>
+        </View>
+        <View>
+          <Text>
+            {"UUID："}
+            {UUID}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -47,8 +49,9 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
+    flexDirection: "column",
+    alignItems: 'center',
+    marginTop: "50%"
     // gap: 8,
   },
   stepContainer: {

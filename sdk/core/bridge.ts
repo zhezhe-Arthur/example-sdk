@@ -1,16 +1,19 @@
 
 
-// import { NativeModules } from "react-native";
+import { NativeModules } from "react-native";
 
 
-const NativeModules = {
-  DeviceModule: {
-    scan: () => Promise.resolve({ devices: [] }),
-    getBatteryLevel: () => Promise.resolve(80),
-    getUUID: () => Promise.resolve('mock-uuid12345678')
-  }
-};
+// const NativeModules = {
+//   DeviceModule: {
+//     scan: () => Promise.resolve({ devices: [] }),
+//     getBatteryLevel: () => Promise.resolve(80),
+//     getUUID: () => Promise.resolve('mock-uuid12345678')
+//   }
+// };
 const { DeviceModule  } = NativeModules
+
+console.log("NativeModules",NativeModules);
+
 
 export const NativeBridge = {
     // 伪代码
