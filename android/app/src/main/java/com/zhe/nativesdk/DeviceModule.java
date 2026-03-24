@@ -9,9 +9,21 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 public class DeviceModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
+
+    private final Handler scanHandler = new Handler(Looper.getMainLooper());
+    private boolean isScanning = false;
+    private int mockIndex = 0;
+    private Runnable scanRunnable;
 
     public DeviceModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -61,5 +73,95 @@ public class DeviceModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject("UUID_ERROR", e);
         }
+    }
+
+    @ReactMethod
+    public void startScan(Promise promise) {
+        try {
+            if (isScanning) {
+                promise.resolve("scan already started");
+                return;
+            }
+
+            isScanning = true;
+            mockIndex = 0;
+
+            sendScanStateChangeEvent(true);
+
+            scanRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (!isScanning) {
+                        return;
+                    }
+
+                    mockIndex++;
+
+                    WritableMap device = Arguments.createMap();
+                    device.putString("id", "MOCK_DEVICE_" + mockIndex);
+                    device.putString("name", "Mock Device " + mockIndex);
+                    device.putInt("rssi", -40 - mockIndex);
+
+                    sendDeviceFoundEvent(device);
+
+                    if (mockIndex < 5) {
+                        scanHandler.postDelayed(this, 1000);
+                    } else {
+                        isScanning = false;
+                        sendScanStateChangeEvent(false);
+                    }
+                }
+            };
+
+            scanHandler.post(scanRunnable);
+            promise.resolve("scan started");
+        } catch (Exception e) {
+            promise.reject("SCAN_ERROR", e);
+        }
+    }
+
+    @ReactMethod
+    public void stopScan(Promise promise) {
+        try {
+            if (scanRunnable != null) {
+                scanHandler.removeCallbacks(scanRunnable);
+            }
+
+            boolean wasScanning = isScanning;
+            isScanning = false;
+
+            if (wasScanning) {
+                sendScanStateChangeEvent(false);
+            }
+
+            promise.resolve("scan stopped");
+        } catch (Exception e) {
+            promise.reject("SCAN_STOP_ERROR", e);
+        }
+    }
+
+    private void sendDeviceFoundEvent(WritableMap device) {
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("deviceFound", device);
+    }
+
+    private void sendScanStateChangeEvent(boolean scanning) {
+        WritableMap params = Arguments.createMap();
+        params.putBoolean("scanning", scanning);
+
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("scanStateChange", params);
+    }
+
+    private void sendScanErrorEvent(String code, String message) {
+        WritableMap params = Arguments.createMap();
+        params.putString("code", code);
+        params.putString("message", message);
+
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("scanError", params);
     }
 }

@@ -8,22 +8,15 @@ export default function HomeScreen() {
   const [UUID, setUUID] = useState<string>()
 
   useEffect(() => {
-    SDK.device.scan().then(res => {
-      // console.log("scan结果：", res);
-    })
-    SDK.system.getInfo().then(res => {
-      // console.log("getInfo结果：", res);
-    })
-
     SDK.device.getBatteryLevel().then(res => {
-      setLevel(res.data)
+      // setLevel(res.data)
       console.log("电量:", res.data);
       
     })
 
     SDK.device.getUUID().then(res => {
-      setUUID(res.data)
-      console.log("UUID:",res.data);
+      // setUUID(res.data)
+      console.log("UUID:", res.data);
     })
   }, [])
 
