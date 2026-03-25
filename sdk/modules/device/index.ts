@@ -58,7 +58,7 @@ export const device = {
       return {
         code: 500,
         meseeage: error?.message || '获取UUID失败',
-        data: null,
+        data: "",
       };
     }
   },
@@ -75,7 +75,7 @@ export const device = {
       return {
         code: 500,
         meseeage: error?.message || '启动扫描失败',
-        data: null,
+        data: "",
       };
     }
   },
@@ -92,7 +92,7 @@ export const device = {
       return {
         code: 500,
         meseeage: error?.message || '停止扫描失败',
-        data: null,
+        data: "",
       };
     }
   },

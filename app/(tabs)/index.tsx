@@ -4,24 +4,52 @@ import SDK from "@/sdk";
 import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
-  const [level, setLevel] = useState<number>()
-  const [UUID, setUUID] = useState<string>()
+  const [level, setLevel] = useState<number | "">()
+  const [UUID, setUUID] = useState<string | "">()
 
   useEffect(() => {
     SDK.device.getBatteryLevel().then(res => {
-      // setLevel(res.data)
-      console.log("电量:", res.data);
-      
+      setLevel(res.data || "")
     })
 
     SDK.device.getUUID().then(res => {
-      // setUUID(res.data)
-      console.log("UUID:", res.data);
+      setUUID(res.data || "")
     })
   }, [])
 
+  useEffect(() => {
+    const sub1 = SDK.device.onDeviceFound((device) => {
+      console.log('发现设备:', device);
+    });
+
+    const sub2 = SDK.device.onScanStateChange((scanning) => {
+      console.log('扫描状态:', scanning);
+    });
+
+    const sub3 = SDK.device.onScanError((error) => {
+      console.log('扫描错误:', error);
+    });
+
+    const run = async () => {
+      const res = await SDK.device.startScan();
+      console.log('开始扫描:', res);
+    };
+
+    run();
+
+    return () => {
+      sub1.remove();
+      sub2.remove();
+      sub3.remove();
+
+      SDK.device.stopScan().then((res) => {
+        console.log('停止扫描:', res);
+      });
+    };
+  }, []);
+
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <View style={styles.titleContainer}>
         <View>
           <Text>
